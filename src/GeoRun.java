@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
@@ -20,7 +21,7 @@ public class GeoRun extends Application {
 
     private final String apiKey = "AIzaSyCh1Ps7lceOVSsv4vEWw_aRglCR3t2xj7A";
     private final String baseUrl = "https://maps.googleapis.com/maps/api/geocode/json?";
-    private Button getCoords, getAdr;
+    //private Button getCoords, getAdr;
 
     public static void main(String[] args) {
 
@@ -33,19 +34,35 @@ public class GeoRun extends Application {
 
         primaryStage.setTitle("GeoLoc v 0.1");
 
-        getCoords = new Button("Get coordinates");
+
+        VBox layoutG = new VBox(20);
+        Scene sceneGeo = new Scene(layoutG, 300, 250);
+
+        VBox layoutA = new VBox(20);
+        Scene sceneAdr = new Scene(layoutA, 300, 250);
+
+        Button getCoords = new Button("Get coordinates");
         getCoords.setOnAction(event1 -> {
             GeoRun test = new GeoRun();
-            test.getCoordinates();
+            CoordScene coordScene = new CoordScene();
+            primaryStage.setScene(coordScene.getScene());
+            //System.out.println(coordScene.getAdressUrl());
+            //test.getCoordinates();
         });
-        getAdr = new Button("Get adress");
+
+       Button getAdr = new Button("Get adress");
         getAdr.setOnAction(event2 -> {
             GeoRun test = new GeoRun();
+            primaryStage.setScene(sceneAdr);
             test.getAdress();
         });
 
         VBox layout = new VBox(20);
         layout.getChildren().addAll(getCoords, getAdr);
+        layout.setAlignment(Pos.CENTER);
+
+
+
 
         Scene scene = new Scene(layout, 300, 250);
         primaryStage.setScene(scene);
@@ -55,35 +72,8 @@ public class GeoRun extends Application {
 
     }
 
-
-
-
-    private void getCoordinates() {
-        String url = baseUrl +"address=Wilenska+6A,+Warsaw,+Poland&key=" + apiKey;
-
-        HttpGet get = new HttpGet(url);
-
-        try {
-            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-            CloseableHttpResponse response = httpClient.execute(get);
-            System.out.println(response.getStatusLine().getStatusCode());
-            BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-            StringBuffer result = new StringBuffer();
-            String line;
-            while ((line = br.readLine()) != null) {
-                result.append(line);
-            }
-            System.out.println(result);
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     private void getAdress() {
-        String url = baseUrl +"latlng=40.71,-73.96&key=" + apiKey;
+        String url = baseUrl +"latlng=40.71,-73.96" + "&key=" + apiKey;
 
         HttpGet get = new HttpGet(url);
 
