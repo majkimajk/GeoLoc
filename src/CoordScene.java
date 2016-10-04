@@ -4,11 +4,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +26,8 @@ public class CoordScene {
     private final String baseUrl = "https://maps.googleapis.com/maps/api/geocode/json?";
 
     private StringBuilder sb = new StringBuilder();
-    private String adressUrl = "nic";
+    private String adressUrl = "";
+    private String outcome;
 
     public Scene getScene() {
 
@@ -85,7 +89,16 @@ public class CoordScene {
                 sb.deleteCharAt(sb.length() - 1);
             }
             adressUrl = sb.toString();
-            getCoordinates(adressUrl);
+            String coordinates = getCoordinates(adressUrl);
+            Stage stage2 = new Stage();
+            stage2.setTitle("Coordinates");
+            Label label = new Label(coordinates);
+            VBox layout2 = new VBox(20);
+            layout2.getChildren().addAll(label);
+            Scene scene2 = new Scene(layout2, 300, 250);
+            stage2.setScene(scene2);
+            stage2.show();
+
 
             });
 
@@ -96,7 +109,7 @@ public class CoordScene {
         return scene;
     }
 
-    private void getCoordinates(String adressUrl) {
+    private String getCoordinates(String adressUrl) {
         System.out.println(adressUrl);
         String url = baseUrl +"address=" + adressUrl + "&key=" + apiKey;
 
@@ -112,12 +125,33 @@ public class CoordScene {
             while ((line = br.readLine()) != null) {
                 result.append(line);
             }
-            System.out.println(result);
+            String resultString = result.toString();
+            //System.out.println(result);
+            JSONObject obj = new JSONObject(resultString);
+
+
+            JSONObject res = obj.getJSONArray("results").getJSONObject(0);
+            //System.out.println(res.getString("formatted_address"));
+            JSONObject loc =
+                    res.getJSONObject("geometry").getJSONObject("location");
+            outcome = "Lattitude: " + loc.getDouble("lat") +
+                    ", Longitude: " + loc.getDouble("lng");
+            //System.out.println("lat: " + loc.getDouble("lat") +
+                   // ", lng: " + loc.getDouble("lng"));
+
+
+
+
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        return outcome;
+
     }
+
+
+
 }
